@@ -25,6 +25,29 @@ def index_route():
 
 @app.route('/researches/<path:filename>')
 def serve_research(filename):
+    full_path = os.path.join(RESEARCH_DIR, filename)
+    if os.path.isdir(full_path):
+        # Generate a simple directory listing if it's a folder
+        files = os.listdir(full_path)
+        
+        links = []
+        for f in files:
+            # Handle trailing slash logic for links
+            base_url = f"/researches/{filename}"
+            if not base_url.endswith('/'):
+                base_url += "/"
+            links.append(f'<li style="margin: 10px 0;"><a href="{base_url}{f}" style="color: #2563eb; text-decoration: none; font-size: 1.1rem; font-family: sans-serif;">📄 {f}</a></li>')
+            
+        links_html = "\n".join(links)
+        html = f"""
+        <html><body style="padding: 40px; background: #f8fafc;">
+            <h2 style="font-family: sans-serif; color: #1e293b;">Directory listing for: {filename}</h2>
+            <ul style="list-style: none; padding: 0;">{links_html}</ul>
+            <br><a href="/" style="font-family: sans-serif; color: #64748b; text-decoration: none;">&larr; Back to Dashboard</a>
+        </body></html>
+        """
+        return html
+        
     return send_from_directory(RESEARCH_DIR, filename)
 
 @app.route('/api/research/stream')
